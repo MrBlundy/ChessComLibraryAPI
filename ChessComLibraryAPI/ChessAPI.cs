@@ -21,7 +21,7 @@ namespace ChessComLibraryAPI
             _client = new HttpClient();
             //ApiClient.BaseAddress = new Uri("https://api.chess.com/");
             _client.DefaultRequestHeaders.Accept.Clear();
-            //_client.DefaultRequestHeaders.Add("User-Agent", "ChessComLibraryAPI//chesscom=CalculatedBlunder//email=dustingreene512@gmail.com");
+            //_client.DefaultRequestHeaders.Add("User-Agent", "ChessComLibraryAPI//chesscom=CalculatedBlunder");
 
         }
 
