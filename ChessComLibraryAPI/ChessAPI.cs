@@ -215,22 +215,13 @@ namespace ChessComLibraryAPI
         }
 
         // standard multi-game format PGN containing all games for a month
-        public static async Task GetMonthlyArchivePgnDownloadAsync(string username, int year, int month, string fileName)
+        public static async Task GetMonthlyArchivePGNAsync(string username, int year, int month, string fileName)
         {
             using (WebClient client = new WebClient())
             {
                 var url = new Uri($"https://api.chess.com/pub/player/{username}/games/{year}/{month}/pgn");
-                await client.DownloadFileTaskAsync(url, fileName);
-            }
-        }
-
-        // standard multi-game format PGN containing all games for a month
-        public static async Task GetMonthlyArchivePgnDownloadAsync(string url, string fileName)
-        {
-            using (WebClient client = new WebClient())
-            {
-                var uri = new Uri(url);
-                await client.DownloadFileTaskAsync(uri, fileName);
+                client.DownloadFileAsync(url, fileName);
+                await Task.CompletedTask;
             }
         }
 
