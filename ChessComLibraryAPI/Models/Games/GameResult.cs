@@ -1,7 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
-
-namespace ChessComLibraryAPI.Models.Games
+﻿namespace ChessComLibraryAPI.Models.Games
 {
     /// <summary>
     /// Enum representing the possible outcomes of a game

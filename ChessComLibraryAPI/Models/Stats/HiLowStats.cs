@@ -1,5 +1,4 @@
-﻿using ChessComLibraryAPI.Model.Stats;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace ChessComLibraryAPI.Models.Stats
 {

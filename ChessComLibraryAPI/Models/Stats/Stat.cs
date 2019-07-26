@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace ChessComLibraryAPI.Model.Stats
+namespace ChessComLibraryAPI.Models.Stats
 {
     public class Stat
     {
