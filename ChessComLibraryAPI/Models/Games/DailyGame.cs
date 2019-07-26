@@ -1,5 +1,4 @@
-﻿using ChessComLibraryAPI.Utilities;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 
 namespace ChessComLibraryAPI.Models.Games
@@ -97,22 +96,22 @@ namespace ChessComLibraryAPI.Models.Games
         /// <summary>
         /// Converted(moveByDate) -> DateTime Player has to move by
         /// </summary>
-        public DateTime MoveByDate { get { return moveBy.FromUnixTime(); } }
+        public DateTime MoveByDate { get { return DateTimeOffset.FromUnixTimeSeconds(moveBy).DateTime; } }
 
         /// <summary>
         /// Converted(lastActivity) -> DateTime Player was last active
         /// </summary>
-        public DateTime LastActivity { get { return lastActivity.FromUnixTime(); } }
+        public DateTime LastActivity { get { return DateTimeOffset.FromUnixTimeSeconds(lastActivity).DateTime; } }
 
         /// <summary>
         /// Converted(startTime) -> DateTime the game started
         /// </summary>
-        public DateTime GameStartTime { get { return startTime.FromUnixTime(); } }
+        public DateTime GameStartTime { get { return DateTimeOffset.FromUnixTimeSeconds(startTime).DateTime; } }
 
         /// <summary>
         /// Converted(endTime) -> DateTime game ended
         /// </summary>
-        public DateTime GameEndTime { get { return endTime.FromUnixTime(); } }
+        public DateTime GameEndTime { get { return DateTimeOffset.FromUnixTimeSeconds(endTime).DateTime; } }
     }
 
 

@@ -1,5 +1,4 @@
-﻿using ChessComLibraryAPI.Utilities;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 
 namespace ChessComLibraryAPI.Models.Misc
@@ -72,7 +71,7 @@ namespace ChessComLibraryAPI.Models.Misc
         /// <summary>
         /// Converted(joinedDate) -> DateTime Player Joined
         /// </summary>
-        public DateTime JoinedDate { get { return joinedDate.FromUnixTime(); } }
+        public DateTime JoinedDate { get { return DateTimeOffset.FromUnixTimeSeconds(joinedDate).DateTime; } }
 
         /// <summary>
         /// Last time Player was Online
@@ -82,7 +81,7 @@ namespace ChessComLibraryAPI.Models.Misc
         /// <summary>
         /// Converted(lastOnline) -> DateTime Player last online
         /// </summary>
-        public DateTime LastOnline { get { return lastOnline.FromUnixTime(); } }
+        public DateTime LastOnline { get { return DateTimeOffset.FromUnixTimeSeconds(lastOnline).DateTime; } }
 
     }
 }

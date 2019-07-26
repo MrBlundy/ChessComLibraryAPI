@@ -1,5 +1,4 @@
-﻿using ChessComLibraryAPI.Utilities;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 
 namespace ChessComLibraryAPI.Models.Clubs
@@ -33,15 +32,16 @@ namespace ChessComLibraryAPI.Models.Clubs
         /// Time Player's last activity
         /// </summary>
         [JsonProperty("last_activity")] public long lastactivity { get; set; }
-        
+
         /// <summary>
         /// Converted(joined) -> DateTime Player joined Club
         /// </summary>
-        public DateTime JoinedDate { get { return joined.FromUnixTime(); } }
-        
+        //public DateTime JoinedDate { get { return joined.FromUnixTime(); } }
+        public DateTime JoinedDate { get { return DateTimeOffset.FromUnixTimeSeconds(joined).DateTime; } }
+
         /// <summary>
         /// Converted(lastActivity) -> DateTime Player was last active
         /// </summary>
-        public DateTime LastActivity { get { return lastactivity.FromUnixTime(); } }
+        public DateTime LastActivity { get { return DateTimeOffset.FromUnixTimeSeconds(lastactivity).DateTime; } }
     }
 }
