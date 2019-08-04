@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace ChessComLibraryAPI.UnitTests
 {
     [TestClass]
-    public class ChessAPITests
+    public static class ChessAPITests
     {
         [TestMethod]
         public static async Task GetJsonFromUrl_ReturnsString()

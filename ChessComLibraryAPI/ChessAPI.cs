@@ -50,16 +50,15 @@ namespace ChessComLibraryAPI
         public static async Task<Profile> LookupPlayerAsync(string username)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}").ConfigureAwait(false);
-            var profile = JsonConvert.DeserializeObject<Profile>(json);
-            return profile;
+            return JsonConvert.DeserializeObject<Profile>(json);
+            
         }
 
         // retrieves player Profile Stats
         public static async Task<ProfileStats> GetPlayerStatsAsync(string username)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/stats").ConfigureAwait(false);
-            var stats = JsonConvert.DeserializeObject<ProfileStats>(json);
-            return stats;
+            return JsonConvert.DeserializeObject<ProfileStats>(json);
         }
 
         // returns a string containing valid titles
@@ -73,8 +72,7 @@ namespace ChessComLibraryAPI
         public static async Task<string[]> LookupPlayersWithTitleAsync(string title)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/titled/{title}").ConfigureAwait(false);
-            var players = JObject.Parse(json)["players"].ToObject<string[]>();
-            return players;
+            return JObject.Parse(json)["players"].ToObject<string[]>();
         }
 
         // checks if player is online
@@ -82,8 +80,14 @@ namespace ChessComLibraryAPI
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/is-online").ConfigureAwait(false);
             var jObject = JObject.Parse(json);
-            if ((bool)jObject["online"]) return true;
-            else return false;
+            if ((bool)jObject["online"])
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
 
         }
 
@@ -91,16 +95,14 @@ namespace ChessComLibraryAPI
         public static async Task<Club[]> GetPlayerClubsAsync(string username)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/clubs").ConfigureAwait(false);
-            var clubs = JObject.Parse(json)["clubs"].ToObject<Club[]>();
-            return clubs;
+            return JObject.Parse(json)["clubs"].ToObject<Club[]>();
         }
 
         // List of Team matches the player has attended, is partecipating or is currently registered. 
         public static async Task<ClubMatches> GetTeamMatchesAsync(string username)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/matches").ConfigureAwait(false);
-            var matches = JsonConvert.DeserializeObject<ClubMatches>(json);
-            return matches;
+            return JsonConvert.DeserializeObject<ClubMatches>(json);
         }
 
 
@@ -108,8 +110,7 @@ namespace ChessComLibraryAPI
         public static async Task<DailyPuzzle> GetDailyPuzzleAsync()
         {
             var json = await GetJsonFromUrlAsync("https://api.chess.com/pub/puzzle").ConfigureAwait(false);
-            var puzzle = JsonConvert.DeserializeObject<DailyPuzzle>(json);
-            return puzzle;
+            return JsonConvert.DeserializeObject<DailyPuzzle>(json);
         }
 
         // retrieve the list of streamers, filter by currently live or not
@@ -118,17 +119,22 @@ namespace ChessComLibraryAPI
             var json = await GetJsonFromUrlAsync("https://api.chess.com/pub/streamers").ConfigureAwait(false);
             var streamers = JObject.Parse(json)["streamers"].ToObject<Streamer[]>();
 
-            if (live) return streamers.Where(s => s.IsLive).ToArray();
-            else return streamers;
+            if (live)
+            {
+                return streamers.Where(s => s.IsLive).ToArray();
 
+            }
+            else
+            {
+                return streamers;
+            }
         }
 
         // retrieves all the leaderboards, top 50 players
         public static async Task<Leaderboard> GetLeaderboardsAsync()
         {
             var json = await GetJsonFromUrlAsync("https://api.chess.com/pub/leaderboards").ConfigureAwait(false);
-            var leaderBoard = JsonConvert.DeserializeObject<Leaderboard>(json);
-            return leaderBoard;
+            return JsonConvert.DeserializeObject<Leaderboard>(json);
         }
 
         // retrieve leaderboard for selected format
@@ -145,8 +151,6 @@ namespace ChessComLibraryAPI
                     return leaderBoards.Blitz960;
                 case GameVariants.Rapid:
                     return leaderBoards.Rapid;
-                //case GameVariants.Rapid960:
-                //    break;
                 case GameVariants.Daily:
                     return leaderBoards.Daily;
                 case GameVariants.Daily960:
@@ -159,8 +163,6 @@ namespace ChessComLibraryAPI
                     return leaderBoards.Crazyhouse;
                 case GameVariants.KingOfTheHill:
                     return leaderBoards.KingOfTheHill;
-                //case GameVariants.FourPlayer:
-                //    return leaderBoards.FourPlayer;
                 case GameVariants.Lessons:
                     return leaderBoards.Lessons;
                 case GameVariants.Tactics:
@@ -176,8 +178,7 @@ namespace ChessComLibraryAPI
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/games").ConfigureAwait(false);
             var jObject = JObject.Parse(json);
-            var games = jObject["games"].ToObject<DailyGame[]>();
-            return games;
+            return jObject["games"].ToObject<DailyGame[]>();
         }
 
         // Array of Daily Chess games where it is the player's turn to act.
@@ -185,8 +186,7 @@ namespace ChessComLibraryAPI
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/games/to-move").ConfigureAwait(false);
             var jObject = JObject.Parse(json);
-            var games = jObject["games"].ToObject<DailyGame[]>();
-            return games;
+            return jObject["games"].ToObject<DailyGame[]>();
         }
 
         // Array of monthly archives available for this player.
@@ -197,8 +197,7 @@ namespace ChessComLibraryAPI
 
             if (jObject.ContainsKey("archives"))
             {
-                var archives = jObject["archives"].ToObject<string[]>();
-                return archives;
+                return jObject["archives"].ToObject<string[]>();
             }
 
             return new string[] { "invalid username" };
@@ -210,16 +209,13 @@ namespace ChessComLibraryAPI
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/games/{year}/{month}").ConfigureAwait(false);
             var jObject = JObject.Parse(json);
-            var archive = jObject["games"].ToObject<ArchivedGame[]>();
-            return archive;
-
+            return jObject["games"].ToObject<ArchivedGame[]>();
         }
         public static async Task<ArchivedGame[]> GetMonthlyArchiveAsync(string url)
         {
             var json = await GetJsonFromUrlAsync(url).ConfigureAwait(false);
             var jObject = JObject.Parse(json);
-            var archive = jObject["games"].ToObject<ArchivedGame[]>();
-            return archive;
+            return jObject["games"].ToObject<ArchivedGame[]>();
         }
 
         // standard multi-game format PGN containing all games for a month
@@ -237,11 +233,9 @@ namespace ChessComLibraryAPI
         {
             using (WebClient client = new WebClient())
             {
-                var uri = new Uri(url);
-                await client.DownloadFileTaskAsync(uri, fileName).ConfigureAwait(false);
+                await client.DownloadFileTaskAsync(new Uri(url), fileName).ConfigureAwait(false);
             }
         }
-
        
     }
    
