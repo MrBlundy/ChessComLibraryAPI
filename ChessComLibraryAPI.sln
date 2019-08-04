@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessComLibraryAPI", "Chess
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessComLibraryAPI.UnitTests", "ChessComLibraryAPI.UnitTests\ChessComLibraryAPI.UnitTests.csproj", "{6C9F195D-1CCA-4844-BD56-CBCFEE1B68C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Console\Console.csproj", "{750265C4-D46B-4BE7-9A07-7F8C653162E3}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{6C9F195D-1CCA-4844-BD56-CBCFEE1B68C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C9F195D-1CCA-4844-BD56-CBCFEE1B68C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C9F195D-1CCA-4844-BD56-CBCFEE1B68C3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{750265C4-D46B-4BE7-9A07-7F8C653162E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{750265C4-D46B-4BE7-9A07-7F8C653162E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{750265C4-D46B-4BE7-9A07-7F8C653162E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{750265C4-D46B-4BE7-9A07-7F8C653162E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
