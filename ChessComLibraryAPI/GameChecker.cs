@@ -1,4 +1,5 @@
 ﻿using ChessComLibraryAPI.Models.Games;
+using ChessComLibraryAPI.Models.Stats;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,69 +8,77 @@ using System.Threading.Tasks;
 
 namespace ChessComLibraryAPI
 {
-    public static class ExtendedChessApi
+
+    public static class GameChecker
     {
-        public static PgnGame ConvertArchiveToPgn(ArchivedGame game)
+        public static MonthlyStats RetrieveMonthlyStats(this ArchivedGame[] games, string username)
         {
-            var regex = new Regex(@"\[Date \W+(\d{4}\.\d{2}\.\d{2}).*White\W+(\w+).*Black\W+(\w+).*Result\W+(\d-\d).*WhiteElo\W+(\d{3,4}).*BlackElo\W+(\d{3,4}).*StartTime \W+(\d{2}:\d{2}:\d{2}.*EndTime\W+(\d{2}:\d{2}:\d{2}))");
-            var match = regex.Match(game.CurrentPGN);
-            if (match.Success)
+            var stats = new MonthlyStats
             {
-                return new PgnGame()
-                {
-                    Date = match.Groups[1].Value,
+                WonByFlag = QueryArchivedGames(games, username, GameResult.Win, GameResult.Timeout).Count(),
+                WonByResign = QueryArchivedGames(games, username, GameResult.Win, GameResult.Resigned).Count(),
+                WonByCheckmate = QueryArchivedGames(games, username, GameResult.Win, GameResult.Checkmated).Count(),
+                WonByAbandoned = QueryArchivedGames(games, username, GameResult.Win, GameResult.Abandoned).Count(),
 
-                    WhitePlayer = match.Groups[2].Value,
-                    BlackPlayer = match.Groups[3].Value,
+                LostByFlag = QueryArchivedGames(games, username, GameResult.Timeout, GameResult.Win).Count(),
+                LostByResign = QueryArchivedGames(games, username, GameResult.Resigned, GameResult.Win).Count(),
+                LostByCheckmate = QueryArchivedGames(games, username, GameResult.Checkmated, GameResult.Win).Count(),
+                LostByAbandoned = QueryArchivedGames(games, username, GameResult.Abandoned, GameResult.Win).Count(),
 
-                    GameResult = match.Groups[4].Value,
+                DrawByRepetition = QueryArchivedGames(games, username, GameResult.Abandoned, GameResult.Win).Count(),
+                DrawByAgreed = QueryArchivedGames(games, username, GameResult.Abandoned, GameResult.Win).Count(),
+                DrawByStalemate = QueryArchivedGames(games, username, GameResult.Abandoned, GameResult.Win).Count(),
+                DrawByFiftyMove = QueryArchivedGames(games, username, GameResult.Abandoned, GameResult.Win).Count(),
+                DrawByTimeoutVsInsufficient = QueryArchivedGames(games, username, GameResult.Abandoned, GameResult.Win).Count(),
+               
+            };
 
-                    WhiteElo = int.Parse(match.Groups[5].Value),
-                    BlackElo = int.Parse(match.Groups[6].Value),
+            if (games.Any(g => g.MovesCount() < 15))
+            {
+                stats.ShortGamesWon = games.Where(g => g.MovesCount() < 15)
+                                           .Where(g => g.WhitePlayer.Username.Equals(username, StringComparison.OrdinalIgnoreCase) &&
+                                                       g.WhitePlayer.GameResult == GameResult.Win)
+                                           .Count();
 
-                    StartTime = match.Groups[7].Value,
-                    EndTime = match.Groups[8].Value,
-
-                    TimeClass = game.TimeClass
-                };
+                stats.ShortGamesLost = games.Where(g => g.MovesCount() < 15)
+                           .Where(g => g.BlackPlayer.Username.Equals(username, StringComparison.OrdinalIgnoreCase) &&
+                                       g.BlackPlayer.GameResult == GameResult.Win)
+                           .Count();
             }
 
-            return null;
+            return stats;
         }
 
-        public static PgnGame[] ConvertMultipleArchivesPGN(ArchivedGame[] games)
-        {
-            var list = new List<PgnGame>();
-            foreach (var game in games)
-            {
-                var pgn = ConvertArchiveToPgn(game);
-                if (pgn != null) list.Add(ConvertArchiveToPgn(game));
-            }
-            return list.ToArray();
-        }
+
+
         public static int MovesCount(this ArchivedGame game)
         {
             // regex pattern to match
             string pattern = @"\d{1,3}\.\.\.";
+            if (game.CurrentPGN != null)
+            {
+                // get all regex matches
+                var matches = Regex.Matches(game.CurrentPGN, pattern);
 
-            // get all regex matches
-            var matches = Regex.Matches(game.CurrentPGN, pattern);
+                // return the number of matches
+                return matches.Count;
+            }
 
-            // return the number of matches
-            return matches.Count;
+            return 0;
         }
-        public static double CheckPercentageShortGames(ArchivedGame[] games)
+
+        public static double CheckPercentageShortGames(this ArchivedGame[] games)
         {
             // retrieve list of games with less than 15 moves
             var short_games = games.Where(game => game.MovesCount() < 15);
 
             // get the percentage of short games to total games
             double short_percent = (double)short_games.Count() * 100 / games.Count();
-            
-            return Math.Ceiling(short_percent);
+
+            return Math.Round(short_percent);
         }
 
-        public static double CheckPercentageLostGames(string username, ArchivedGame[] games)
+        public static double CheckPercentageLostGames(this ArchivedGame[] games, string username)
         {
             // retrieve games lost by username
             var lost_games = games.Where(game => (game.WhitePlayer.Username.Equals(username, StringComparison.OrdinalIgnoreCase) && game.WhitePlayer.GameResult != GameResult.Win)
@@ -78,10 +87,10 @@ namespace ChessComLibraryAPI
             // get the percentage of lost games to total games
             double lost_percent = (double)lost_games.Count() * 100 / games.Count();
 
-            return Math.Ceiling(lost_percent);
+            return Math.Round(lost_percent);
         }
 
-        public static double CheckPercentageWonGames(string username, ArchivedGame[] games)
+        public static double CheckPercentageWonGames(this ArchivedGame[] games, string username)
         {
             // retrieve games lost by username
             var won_games = games.Where(game => (game.WhitePlayer.Username.Equals(username, StringComparison.OrdinalIgnoreCase) && game.WhitePlayer.GameResult == GameResult.Win)
@@ -100,10 +109,9 @@ namespace ChessComLibraryAPI
                 return games.Where(game => (game.WhitePlayer.Username.Equals(username, StringComparison.OrdinalIgnoreCase) && game.WhitePlayer.GameResult == GameResult.Win)
                       || (game.BlackPlayer.Username.Equals(username, StringComparison.OrdinalIgnoreCase) && game.BlackPlayer.GameResult == GameResult.Win)).ToArray();
             }
-            
+
             return games.Where(game => game.WhitePlayer.GameResult == result || game.BlackPlayer.GameResult == result).ToArray();
         }
-
         public static ArchivedGame[] QueryArchivedGames(this ArchivedGame[] games, string username, GameResult userResult, GameResult oppResult)
         {
             var list = new List<ArchivedGame>();
@@ -116,30 +124,5 @@ namespace ChessComLibraryAPI
 
             return list.ToArray();
         }
-
-
-        public static async Task<bool> CheckPlayer(string username)
-        {
-            // grab all available monthly archives
-            var availMonths = await ChessAPI.GetAvailableMonthlyArchivesAsync(username);
-
-            // grab archive for last month of games
-            var games = await ChessAPI.GetMonthlyArchiveAsync(availMonths[availMonths.Length - 1]);
-
-            // perform check to see percentage of games which are 'short'
-            var check1 = CheckPercentageShortGames(games);
-
-            // perform check to see percentage of games which user lost
-            var check2 = CheckPercentageLostGames(username, games);
-
-            // if either percentage is over 50% raise red flag
-            if (check1 > 50 || check2 > 50) return true;
-            
-            // the user passed the check
-            else return false;
-            
-        }
-        
-
     }
 }
