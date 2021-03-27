@@ -1,2 +1,2 @@
 # ChessComLibraryAPI
-API Wrapper for Chess.com API
+C# Wrapper for Chess.com API
