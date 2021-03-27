@@ -10,17 +10,17 @@ namespace ChessComLibraryAPI.Models.Stats
         /// <summary>
         /// Win Count
         /// </summary>
-        [JsonProperty("win")] public int Wins { get; set; }
+        [JsonProperty("win")] public float Wins { get; set; }
 
         /// <summary>
         /// Loss Count
         /// </summary>
-        [JsonProperty("loss")] public int Loses { get; set; }
+        [JsonProperty("loss")] public float Loses { get; set; }
 
         /// <summary>
         /// Draw Count
         /// </summary>
-        [JsonProperty("draw")] public int Draws { get; set; }
+        [JsonProperty("draw")] public float Draws { get; set; }
 
         /// <summary>
         /// Average Time spent per move

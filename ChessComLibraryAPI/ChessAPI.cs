@@ -15,7 +15,7 @@ namespace ChessComLibraryAPI
 {
     public static class ChessAPI
     {
-        static HttpClient _client;
+        private static HttpClient _client;
 
         static ChessAPI()
         {
@@ -46,19 +46,14 @@ namespace ChessComLibraryAPI
             }
         }
 
+        #region Player Data
+
         // return player Profile
-        public static async Task<Profile> LookupPlayerAsync(string username)
+        public static async Task<Profile> GetProfileAsync(string username)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}").ConfigureAwait(false);
             return JsonConvert.DeserializeObject<Profile>(json);
-            
-        }
 
-        // retrieves player Profile Stats
-        public static async Task<ProfileStats> GetPlayerStatsAsync(string username)
-        {
-            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/stats").ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<ProfileStats>(json);
         }
 
         // returns a string containing valid titles
@@ -73,6 +68,13 @@ namespace ChessComLibraryAPI
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/titled/{title}").ConfigureAwait(false);
             return JObject.Parse(json)["players"].ToObject<string[]>();
+        }
+
+        // retrieves player Profile Stats
+        public static async Task<ProfileStats> GetPlayerStatsAsync(string username)
+        {
+            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/stats").ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<ProfileStats>(json);
         }
 
         // checks if player is online
@@ -91,6 +93,88 @@ namespace ChessComLibraryAPI
 
         }
 
+        #endregion
+
+        #region Games
+
+        public static async Task<DailyGame[]> GetDailyGamesAsync(string username)
+        {
+            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/games").ConfigureAwait(false);
+            var jObject = JObject.Parse(json);
+            return jObject["games"].ToObject<DailyGame[]>();
+        }
+
+        // Array of Daily Chess games where it is the player's turn to act.
+        public static async Task<DailyGame[]> GetDailyGamesPlayerToMoveAsync(string username)
+        {
+            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/games/to-move").ConfigureAwait(false);
+            var jObject = JObject.Parse(json);
+            return jObject["games"].ToObject<DailyGame[]>();
+        }
+
+        // Array of monthly archives available for this player.
+        public static async Task<string[]> GetAvailableMonthlyArchivesAsync(string username)
+        {
+            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/games/archives").ConfigureAwait(false);
+            var jObject = JObject.Parse(json);
+
+            if (jObject.ContainsKey("archives"))
+            {
+                return jObject["archives"].ToObject<string[]>();
+            }
+
+            return new[] { "invalid username" };
+        }
+
+        // Array of Live and Daily Chess games that a player has finished for a given year/month.
+        public static async Task<ArchivedGame[]> GetMonthlyArchiveAsync(string username, int year, int month)
+        {
+            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/games/{year}/{month}").ConfigureAwait(false);
+            var jObject = JObject.Parse(json);
+            return jObject["games"].ToObject<ArchivedGame[]>();
+        }
+        public static async Task<ArchivedGame[]> GetMonthlyArchiveAsync(string url)
+        {
+            var json = await GetJsonFromUrlAsync(url).ConfigureAwait(false);
+            var jObject = JObject.Parse(json);
+            return jObject["games"].ToObject<ArchivedGame[]>();
+        }
+
+        // standard multi-game format PGN containing all games for a month
+        public static async Task GetMonthlyArchivePgnDownloadAsync(string username, int year, int month, string fileName)
+        {
+            using (WebClient client = new WebClient())
+            {
+                var url = new Uri($"https://api.chess.com/pub/player/{username}/games/{year}/{month}/pgn");
+                await client.DownloadFileTaskAsync(url, fileName).ConfigureAwait(false);
+                client.DownloadFile(url, fileName);
+            }
+        }
+
+        // standard multi-game format PGN containing all games for a month
+        public static async Task GetMonthlyArchivesPgnDownloadAsync(string url, string fileName)
+        {
+            using (WebClient client = new WebClient())
+            {
+                await client.DownloadFileTaskAsync(new Uri(url), fileName).ConfigureAwait(false);
+            }
+        }
+
+
+        public static async Task GetAllAvailableGamesDownloadAsync(string username, string directoryPath)
+        {
+            var availableArchives = await GetAvailableMonthlyArchivesAsync(username);
+            foreach (var month in availableArchives)
+            {
+                var filePath = month.Substring(month.Length - 7);
+                await GetMonthlyArchivesPgnDownloadAsync(month, directoryPath + @"\" + filePath);
+            }
+        }
+
+        #endregion
+
+        #region Clubs
+
         // retrieves all clubs player is part of
         public static async Task<Club[]> GetPlayerClubsAsync(string username)
         {
@@ -105,6 +189,19 @@ namespace ChessComLibraryAPI
             return JsonConvert.DeserializeObject<ClubMatches>(json);
         }
 
+        #endregion
+
+
+        #region Tournaments
+        #endregion
+
+        #region Team Matches
+        #endregion
+
+        #region Countries
+        #endregion
+
+        #region Daily Puzzle
 
         // retrieve the daily puzzle
         public static async Task<DailyPuzzle> GetDailyPuzzleAsync()
@@ -113,22 +210,33 @@ namespace ChessComLibraryAPI
             return JsonConvert.DeserializeObject<DailyPuzzle>(json);
         }
 
-        // retrieve the list of streamers, filter by currently live or not
-        public static async Task<Streamer[]> GetStreamersAsync(bool live = false)
+        #endregion
+
+        #region Streamers
+
+        // retrieves a list of chess.com streamers
+        public static async Task<Streamer[]> GetStreamersAsync()
         {
             var json = await GetJsonFromUrlAsync("https://api.chess.com/pub/streamers").ConfigureAwait(false);
-            var streamers = JObject.Parse(json)["streamers"].ToObject<Streamer[]>();
+            return JObject.Parse(json)["streamers"].ToObject<Streamer[]>();
+        }
 
+        // retrieves a list of 'live' chess.com streamers
+        public static async Task<Streamer[]> GetStreamersAsync(bool live)
+        {
             if (live)
             {
+                var streamers = await GetStreamersAsync().ConfigureAwait(false);
                 return streamers.Where(s => s.IsLive).ToArray();
+            }
 
-            }
-            else
-            {
-                return streamers;
-            }
+            return await GetStreamersAsync().ConfigureAwait(false);
+
         }
+
+        #endregion
+
+        #region Leaderboard
 
         // retrieves all the leaderboards, top 50 players
         public static async Task<Leaderboard> GetLeaderboardsAsync()
@@ -173,70 +281,19 @@ namespace ChessComLibraryAPI
                     return null;
             }
         }
-               
-        public static async Task<DailyGame[]> GetDailyGamesAsync(string username)
-        {
-            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/games").ConfigureAwait(false);
-            var jObject = JObject.Parse(json);
-            return jObject["games"].ToObject<DailyGame[]>();
-        }
 
-        // Array of Daily Chess games where it is the player's turn to act.
-        public static async Task<DailyGame[]> GetDailyGamesPlayerToMoveAsync(string username)
-        {
-            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/games/to-move").ConfigureAwait(false);
-            var jObject = JObject.Parse(json);
-            return jObject["games"].ToObject<DailyGame[]>();
-        }
+        #endregion
 
-        // Array of monthly archives available for this player.
-        public static async Task<string[]> GetAvailableMonthlyArchivesAsync(string username)
-        {
-            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/games/archives").ConfigureAwait(false);
-            var jObject = JObject.Parse(json);
 
-            if (jObject.ContainsKey("archives"))
-            {
-                return jObject["archives"].ToObject<string[]>();
-            }
 
-            return new string[] { "invalid username" };
-        }
-                      
 
-        // Array of Live and Daily Chess games that a player has finished for a given year/month.
-        public static async Task<ArchivedGame[]> GetMonthlyArchiveAsync(string username, int year, int month)
-        {
-            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/games/{year}/{month}").ConfigureAwait(false);
-            var jObject = JObject.Parse(json);
-            return jObject["games"].ToObject<ArchivedGame[]>();
-        }
-        public static async Task<ArchivedGame[]> GetMonthlyArchiveAsync(string url)
-        {
-            var json = await GetJsonFromUrlAsync(url).ConfigureAwait(false);
-            var jObject = JObject.Parse(json);
-            return jObject["games"].ToObject<ArchivedGame[]>();
-        }
 
-        // standard multi-game format PGN containing all games for a month
-        public static async Task GetMonthlyArchivePgnDownloadAsync(string username, int year, int month, string fileName)
-        {
-            using (WebClient client = new WebClient())
-            {
-                var url = new Uri($"https://api.chess.com/pub/player/{username}/games/{year}/{month}/pgn");
-                await client.DownloadFileTaskAsync(url, fileName).ConfigureAwait(false);
-            }
-        }
 
-        // standard multi-game format PGN containing all games for a month
-        public static async Task GetMonthlyArchivesPgnDownloadAsync(string url, string fileName)
-        {
-            using (WebClient client = new WebClient())
-            {
-                await client.DownloadFileTaskAsync(new Uri(url), fileName).ConfigureAwait(false);
-            }
-        }
-       
+
+
+
+
+
     }
-   
+
 }
