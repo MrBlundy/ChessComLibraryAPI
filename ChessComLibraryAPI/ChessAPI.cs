@@ -48,36 +48,43 @@ namespace ChessComLibraryAPI
 
         #region Player Data
 
-        // return player Profile
-        public static async Task<Profile> GetProfileAsync(string username)
+        // Get additional details about a player in a game.
+        public static async Task<PlayerProfile> GetPlayerProfileAsync(string username)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}").ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<Profile>(json);
+            return JsonConvert.DeserializeObject<PlayerProfile>(json);
 
         }
 
-        // returns a string containing valid titles
-        public static string GetChessTitleOptions()
+        // String of valid titles.
+        public static string GetChessTitleOptionsString()
         {
             return "GM, WGM, IM, WIM, FM, WFM, NM, WNM, CM, WCM";
         }
 
 
-        // retrieves an array of usernames with given title
-        public static async Task<string[]> LookupPlayersWithTitleAsync(string title)
+        // Array of valid titles.
+        public static string[] GetChessTitleOptionsArray()
+        {
+            return new string[] { "GM", "WGM", "IM", "WIM", "FM", "WFM", "NM", "WNM", "CM", "WCM" };
+        }
+
+
+        // List of titled-player usernames.
+        public static async Task<string[]> GetPlayersWithTitleAsync(string title)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/titled/{title}").ConfigureAwait(false);
             return JObject.Parse(json)["players"].ToObject<string[]>();
         }
 
-        // retrieves player Profile Stats
+        // Get ratings, win/loss, and other stats about a player's game play, tactics, lessons and Puzzle Rush score.
         public static async Task<ProfileStats> GetPlayerStatsAsync(string username)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/stats").ConfigureAwait(false);
             return JsonConvert.DeserializeObject<ProfileStats>(json);
         }
 
-        // checks if player is online
+        // Tells if an unser has been online in the last five minutes.
         public static async Task<bool> IsPlayerOnlineAsync(string username)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/is-online").ConfigureAwait(false);
@@ -97,6 +104,7 @@ namespace ChessComLibraryAPI
 
         #region Games
 
+        // Array of Daily Chess games that a player is currently playing.
         public static async Task<DailyGame[]> GetDailyGamesAsync(string username)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/games").ConfigureAwait(false);
@@ -140,7 +148,7 @@ namespace ChessComLibraryAPI
             return jObject["games"].ToObject<ArchivedGame[]>();
         }
 
-        // standard multi-game format PGN containing all games for a month
+        // Standard multi-game format PGN containing all games for a month.
         public static async Task GetMonthlyArchivePgnDownloadAsync(string username, int year, int month, string fileName)
         {
             using (WebClient client = new WebClient())
@@ -151,7 +159,7 @@ namespace ChessComLibraryAPI
             }
         }
 
-        // standard multi-game format PGN containing all games for a month
+        // Standard multi-game format PGN containing all games for a month.
         public static async Task GetMonthlyArchivesPgnDownloadAsync(string url, string fileName)
         {
             using (WebClient client = new WebClient())
@@ -173,20 +181,45 @@ namespace ChessComLibraryAPI
 
         #endregion
 
-        #region Clubs
+        #region Participation
 
-        // retrieves all clubs player is part of
+        // List of clubs the player is a member of, with joined date and last activity date.
         public static async Task<Club[]> GetPlayerClubsAsync(string username)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/clubs").ConfigureAwait(false);
             return JObject.Parse(json)["clubs"].ToObject<Club[]>();
         }
 
-        // List of Team matches the player has attended, is partecipating or is currently registered. 
-        public static async Task<ClubMatches> GetTeamMatchesAsync(string username)
+        // List of Team matches the player has attended, is participating or is currently registered.
+        public static async Task<TeamMatches> GetTeamMatchesAsync(string username)
         {
             var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/player/{username}/matches").ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<ClubMatches>(json);
+            return JsonConvert.DeserializeObject<TeamMatches>(json);
+        }
+
+        #endregion
+
+        #region Clubs
+
+        // Get additional details about a club.
+        public static async Task<ClubProfile> GetClubProfileAsync(string url_id)
+        {
+            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/club/{url_id}").ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<ClubProfile>(json);
+        }
+
+
+        public static async Task<ClubMembers> GetClubMembersAsync(string url_id)
+        {
+            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/club/{url_id}/members").ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<ClubMembers>(json);
+        }
+
+        // List of daily and club matches, grouped by status (registered, in progress, finished).
+        public static async Task<ClubMembers> GetClubMatchesAsync(string url_id)
+        {
+            var json = await GetJsonFromUrlAsync($"https://api.chess.com/pub/club/{url_id}/matches").ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<ClubMembers>(json);
         }
 
         #endregion

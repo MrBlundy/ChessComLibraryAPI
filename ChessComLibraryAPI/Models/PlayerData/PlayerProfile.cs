@@ -6,7 +6,7 @@ namespace ChessComLibraryAPI.Models.Misc
     /// <summary>
     /// Represents a players profile
     /// </summary>
-    public class Profile
+    public class PlayerProfile
     {
         /// <summary>
         /// Username of the account
