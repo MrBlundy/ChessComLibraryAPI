@@ -23,7 +23,7 @@ namespace ChessComLibraryAPI.UnitTests
         [TestMethod]
         public async Task GetPlayerProfileAsync_ReturnsPlayer()
         {
-            var result = await ChessAPI.GetPlayerProfileAsync("calculatedblunder");
+            var result = await ChessAPI.GetPlayerProfileAsync("erik");
             Assert.AreEqual(41, result.PlayerID);
         }
 
@@ -39,7 +39,7 @@ namespace ChessComLibraryAPI.UnitTests
         [TestMethod]
         public async Task GetPlayerStats_ReturnsProfileStats()
         {
-            var result = await ChessAPI.GetPlayerStatsAsync("calculatedblunder");
+            var result = await ChessAPI.GetPlayerStatsAsync("erik");
             Assert.IsNotNull(result.ChessBullet);
         }
 
@@ -67,7 +67,7 @@ namespace ChessComLibraryAPI.UnitTests
         [TestMethod]
         public async Task GetDailyGames_ReturnsDailyGameArray()
         {
-            var result = await ChessAPI.GetDailyGamesAsync("calculatedblunder");
+            var result = await ChessAPI.GetDailyGamesAsync("erik");
             Assert.IsNotNull(result);
 
         }
@@ -81,14 +81,14 @@ namespace ChessComLibraryAPI.UnitTests
         [TestMethod]
         public async Task GetAvailableMonthlyArchives_ReturnsStringArray()
         {
-            var result = await ChessAPI.GetAvailableMonthlyArchivesAsync("calculatedblunder");
+            var result = await ChessAPI.GetAvailableMonthlyArchivesAsync("erik");
             Assert.IsNotNull(result);
 
         }
         [TestMethod]
         public async Task GetMonthlyArchive_ReturnsArchiveGameArray()
         {
-            var result = await ChessAPI.GetMonthlyArchiveAsync("calculatedblunder", 2017, 12);
+            var result = await ChessAPI.GetMonthlyArchiveAsync("erik", 2017, 12);
             Assert.IsNotNull(result);
 
         }
@@ -107,14 +107,14 @@ namespace ChessComLibraryAPI.UnitTests
         [TestMethod]
         public async Task GetPlayerClubs_ReturnsClubArray()
         {
-            var result = await ChessAPI.GetPlayerClubsAsync("calculatedblunder");
+            var result = await ChessAPI.GetPlayerClubsAsync("erik");
             Assert.AreNotEqual(string.Empty, result[0].Name);
         }
         [TestMethod]
         public async Task GetTeamMatchs_ReturnsClubMatchs()
         {
             var result = await ChessAPI.GetTeamMatchesAsync("erik");
-            Assert.AreNotEqual(string.Empty, result.FinishedMatchs[0].Name);
+            Assert.AreNotEqual(string.Empty, result.FinishedMatches[0].Name);
         }
 
         #endregion
@@ -136,12 +136,72 @@ namespace ChessComLibraryAPI.UnitTests
             Assert.IsTrue(result.Weekly.Length > 0);
         }
 
+
+        [TestMethod]
+        public async Task GetClubMatches_ReturnsClubMatches()
+        {
+            var result = await ChessAPI.GetClubMatchesAsync("team-usa-southwest");
+            Assert.IsTrue(result.Finished.Length > 0);
+        }
+
         #endregion
 
         #region Tournaments
+
+        [TestMethod]
+        public async Task GetTournament_ReturnsTournament()
+        {
+            var result = await ChessAPI.GetTournamentAsync("-33rd-chesscom-quick-knockouts-1401-1600");
+            Assert.AreNotEqual(string.Empty, result.Name);
+        }
+
+        [TestMethod]
+        public async Task GetTournamentRound_ReturnsTournamentRound()
+        {
+            var result = await ChessAPI.GetTournamentRoundAsync("-33rd-chesscom-quick-knockouts-1401-1600", "1");
+            Assert.IsTrue(result.Players.Length > 0 || result.Groups.Length > 0);
+        }
+
+        [TestMethod]
+        public async Task GetTournamentRoundGroup_ReturnsTournamentGroup()
+        {
+            var result = await ChessAPI.GetTournamentRoundGroupAsync("-33rd-chesscom-quick-knockouts-1401-1600", "1", "1");
+            Assert.AreNotEqual(null, result.Games);
+            Assert.AreNotEqual(null, result.Players);
+        }
+
         #endregion
 
         #region Team Matches
+
+        [TestMethod]
+        public async Task GetDailyTeamMatch_ReturnsTeamMatch()
+        {
+            var result = await ChessAPI.GetDailyTeamMatchAsync("12803");
+            Assert.AreNotEqual(null, result.Name);
+        }
+
+        [TestMethod]
+        public async Task GetDailyTeamMatchBoard_ReturnsTeamMatch()
+        {
+            var result = await ChessAPI.GetDailyTeamMatchBoardAsync("12803", "1");
+            Assert.AreNotEqual(null, result.Games);
+        }
+
+        [TestMethod]
+        public async Task GetLiveTeamMatch_ReturnsTeamMatch()
+        {
+            var result = await ChessAPI.GetLiveTeamMatchAsync("5833");
+            Assert.AreNotEqual(null, result.Name);
+        }
+
+        [TestMethod]
+        public async Task GetLiveTeamMatchBoard_ReturnsTeamMatchBoard()
+        {
+            var result = await ChessAPI.GetLiveTeamMatchBoardAsync("5833", "5");
+            Assert.AreNotEqual(null, result.Games);
+        }
+
         #endregion
 
         #region Countries
@@ -153,6 +213,13 @@ namespace ChessComLibraryAPI.UnitTests
         public async Task GetDailyPuzzle_ReturnsDailyPuzzle()
         {
             var result = await ChessAPI.GetDailyPuzzleAsync();
+            Assert.AreNotEqual(string.Empty, result.Title);
+        }
+
+        [TestMethod]
+        public async Task GetRandomPuzzle_ReturnsDailyPuzzle()
+        {
+            var result = await ChessAPI.GetRandomPuzzleAsync();
             Assert.AreNotEqual(string.Empty, result.Title);
         }
 
