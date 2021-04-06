@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace ChessComLibraryAPI.Models.Clubs
+namespace ChessComLibraryAPI.Models.Participation
 {
     /// <summary>
     /// Represents the results of a Match

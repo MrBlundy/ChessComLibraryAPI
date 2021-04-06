@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace ChessComLibraryAPI.Models.Clubs
+namespace ChessComLibraryAPI.Models.Participation
 {
     /// <summary>
     /// Represents all Club Matchs a Player has been apart of
