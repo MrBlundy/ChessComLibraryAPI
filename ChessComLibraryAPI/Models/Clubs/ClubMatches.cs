@@ -1,7 +1,4 @@
-﻿using ChessComLibraryAPI.Models.Games;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
 using Newtonsoft.Json;
 
 
@@ -26,12 +23,12 @@ namespace ChessComLibraryAPI.Models.Clubs
 
         [JsonProperty("opponent")] public string Opponent { get; set; }
 
-        [JsonProperty("result")] public GameResult Result { get; set; }
-
         [JsonProperty("start_time")] public int startTime { get; set; }
 
         public DateTime StartTime { get { return DateTimeOffset.FromUnixTimeSeconds(startTime).DateTime; } }
 
-        [JsonProperty("time_class")] public GameVariants Variant { get; set; }
+        [JsonProperty("time_class")] public string Variant { get; set; }
+
+        [JsonProperty("result")] public string Result { get; set; }
     }
 }
